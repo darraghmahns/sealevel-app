@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Share File: {{ file.file.name }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    <label for="email">Share with (Email):</label>
+    <input type="email" name="email" id="email" required>
+    <button type="submit">Share</button>
+  </form>
+  <h3>Users with Access:</h3>
+  <ul>
+    {% for access in file.access_list.all %}
+      <li>
+        {{ access.user.email }}
+        <a href="{% url 'revoke-access' file.id access.user.id %}">Revoke Access</a>
+      </li>
+    {% empty %}
+      <li>No users have access to this file.</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'file-list' %}">Back to File List</a>
+{% endblock %}

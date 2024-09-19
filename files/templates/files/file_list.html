@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Your Files</h2>
+  <ul>
+    {% for file in files %}
+      <li>
+        {{ file.file.name }} - Uploaded by: 
+        {% if file.uploaded_by %}
+          {{ file.uploaded_by.email }}
+        {% else %}
+          Unknown
+        {% endif %}
+        <a href="{% url 'file-download' file.id %}">Download</a>
+        {% if file.owner == user and not user.is_provider %}
+          | <a href="{% url 'file-share' file.id %}">Share</a>
+        {% endif %}
+        | <a href="{% url 'file-access-log' file.id %}">Access Log</a>
+      </li>
+    {% empty %}
+      <li>No files to display.</li>
+    {% endfor %}
+  </ul>
+  {% if not user.is_provider %}
+    <a href="{% url 'file-upload' %}">Upload New File</a>
+  {% endif %}
+{% endblock %}

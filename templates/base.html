@@ -1,0 +1,47 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sealevel Health{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <h1><a href="{% url 'landing' %}">Sealevel Health</a></h1>
+            </div>
+            <nav>
+                <ul>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'landing' %}">Home</a></li>
+                        <li><a href="{% url 'file-list' %}">My Files</a></li>
+                        <li><a href="{% url 'file-upload' %}">Upload File</a></li>
+                        <li>
+                            <form method="post" action="{% url 'logout' %}" class="logout-form">
+                                {% csrf_token %}
+                                <button type="submit">Logout</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'landing' %}">Home</a></li>
+                        <li><a href="{% url 'signup' %}">Sign Up</a></li>
+                        <li><a href="{% url 'login' %}">Login</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2024 Sealevel Health</p>
+    </footer>
+</body>
+</html>

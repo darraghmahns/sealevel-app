@@ -1,0 +1,17 @@
+<!-- files/templates/files/file_access_log.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Access Log for {{ file.file.name }}{% endblock %}
+
+{% block content %}
+  <h2>Access Log for {{ file.file.name }}</h2>
+  <ul>
+    {% for log in access_logs %}
+      <li>{{ log.timestamp }} - {{ log.user.email }} - {{ log.action }}</li>
+    {% empty %}
+      <li>No access logs available.</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'file-list' %}">Back to File List</a>
+{% endblock %}
