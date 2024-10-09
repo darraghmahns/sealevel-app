@@ -15,7 +15,7 @@ class SignUp(CreateView):
 @login_required
 def home(request):
     context = {"name": request.user.first_name}
-    return render(request, '../templates/users/home.html', context)  # Correct template path
+    return render(request, 'users/home.html', context)
 
 def landing(request):
     return render(request, '../templates/users/landing.html')

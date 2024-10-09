@@ -1,26 +1,69 @@
+<!-- files/templates/files/file_list.html -->
+
 {% extends 'base.html' %}
+
+{% block title %}Your Files{% endblock %}
 
 {% block content %}
   <h2>Your Files</h2>
-  <ul>
-    {% for file in files %}
-      <li>
-        {{ file.file.name }} - Uploaded by: 
-        {% if file.uploaded_by %}
-          {{ file.uploaded_by.email }}
-        {% else %}
-          Unknown
-        {% endif %}
-        <a href="{% url 'file-download' file.id %}">Download</a>
-        {% if file.owner == user and not user.is_provider %}
-          | <a href="{% url 'file-share' file.id %}">Share</a>
-        {% endif %}
-        | <a href="{% url 'file-access-log' file.id %}">Access Log</a>
-      </li>
-    {% empty %}
-      <li>No files to display.</li>
-    {% endfor %}
-  </ul>
+
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+  </style>
+  
+  {% if files %}
+    <table>
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Owner</th>
+          <th>Uploaded By</th>
+          <th>Uploaded On</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for file in files %}
+          <tr>
+            <td>{{ file.uploaded_file.name|slice:"11:" }}</td>
+            <td>{{ file.owner.email }}</td>
+            <td>
+              {% if file.uploaded_by %}
+                {{ file.uploaded_by.email }}
+              {% else %}
+                Unknown
+              {% endif %}
+            </td>
+            <td>{{ file.uploaded_date|date:"Y-m-d H:i:s" }}</td>
+            <td>
+              <a href="{% url 'file-download' file.id %}">Download</a>
+              {% if file.owner == user and not user.is_provider %}
+                | <a href="{% url 'file-share' file.id %}">Share</a>
+              {% endif %}
+              | <a href="{% url 'file-access-log' file.id %}">Access Log</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No files to display.</p>
+  {% endif %}
+  
   {% if not user.is_provider %}
     <a href="{% url 'file-upload' %}">Upload New File</a>
   {% endif %}

@@ -5,10 +5,10 @@ from .models import File, FileAccess
 
 @admin.register(File)
 class FileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'owner', 'uploaded_by', 'file', 'uploaded_at', 'description')
-    search_fields = ('owner__email', 'uploaded_by__email', 'file')
-    list_filter = ('uploaded_at',)
-    ordering = ('-uploaded_at',)
+    list_display = ('id', 'owner', 'uploaded_file')
+    search_fields = ('owner__email', 'uploaded_file')
+    list_filter = ('uploaded_date',)
+    ordering = ('-uploaded_date',)
 
 @admin.register(FileAccess)
 class FileAccessAdmin(admin.ModelAdmin):

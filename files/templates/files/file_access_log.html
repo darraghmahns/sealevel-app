@@ -1,17 +1,52 @@
-<!-- files/templates/files/file_access_log.html -->
-
 {% extends 'base.html' %}
 
-{% block title %}Access Log for {{ file.file.name }}{% endblock %}
+{% load tz %}
+
+{% block title %}Access Log for {{ file.uploaded_file.name }}{% endblock %}
 
 {% block content %}
-  <h2>Access Log for {{ file.file.name }}</h2>
-  <ul>
-    {% for log in access_logs %}
-      <li>{{ log.timestamp }} - {{ log.user.email }} - {{ log.action }}</li>
-    {% empty %}
-      <li>No access logs available.</li>
-    {% endfor %}
-  </ul>
+  <h2>Access Log for {{ file.uploaded_file.name }}</h2>
+  
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+  </style>
+
+  {% if access_logs %}
+    <table>
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Action</th>
+          <th>User</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in access_logs %}
+          <tr>
+            <td>{{ log.timestamp|date:"F j, Y, g:i a" }}</td>
+            <td>{{ log.action }}</td>
+            <td>{{ log.user }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No access logs available.</p>
+  {% endif %}
+  
   <a href="{% url 'file-list' %}">Back to File List</a>
 {% endblock %}

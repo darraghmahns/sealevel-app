@@ -1,23 +1,45 @@
+<!-- files/templates/files/file_share.html -->
+
 {% extends 'base.html' %}
 
+{% block title %}Share File: {{ file.uploaded_file.name }}{% endblock %}
+
 {% block content %}
-  <h2>Share File: {{ file.file.name }}</h2>
+  <h2>Share File: {{ file.uploaded_file.name }}</h2>
+  
   <form method="post">
     {% csrf_token %}
     <label for="email">Share with (Email):</label>
     <input type="email" name="email" id="email" required>
     <button type="submit">Share</button>
   </form>
+  
   <h3>Users with Access:</h3>
-  <ul>
-    {% for access in file.access_list.all %}
-      <li>
-        {{ access.user.email }}
-        <a href="{% url 'revoke-access' file.id access.user.id %}">Revoke Access</a>
-      </li>
-    {% empty %}
-      <li>No users have access to this file.</li>
-    {% endfor %}
-  </ul>
+  
+  {% if file.access_list.all %}
+    <table>
+      <thead>
+        <tr>
+          <th>User Email</th>
+          <th>Access Granted At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for access in file.access_list.all %}
+          <tr>
+            <td>{{ access.user.email }}</td>
+            <td>{{ access.access_granted_at|date:"Y-m-d H:i:s" }}</td>
+            <td>
+              <a href="{% url 'revoke-access' file.id access.user.id %}">Revoke Access</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No users have access to this file.</p>
+  {% endif %}
+  
   <a href="{% url 'file-list' %}">Back to File List</a>
 {% endblock %}
