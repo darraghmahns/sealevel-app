@@ -138,3 +138,10 @@ def revoke_access_view(request, file_id, user_id):
     except FileAccess.DoesNotExist:
         messages.error(request, "Access entry does not exist.")
     return redirect('file-share', pk=file.id)
+
+@login_required
+def file_delete_view(request, pk):
+    file = get_object_or_404(File, pk=pk, owner=request.user)
+    file.delete()
+    messages.success(request, "File deleted.")
+    return redirect('file-list')

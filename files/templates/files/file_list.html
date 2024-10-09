@@ -55,6 +55,7 @@
                 | <a href="{% url 'file-share' file.id %}">Share</a>
               {% endif %}
               | <a href="{% url 'file-access-log' file.id %}">Access Log</a>
+              | <a href="{% url 'file-delete' file.id %}">Delete</a>
             </td>
           </tr>
         {% endfor %}
