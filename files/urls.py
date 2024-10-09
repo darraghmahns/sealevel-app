@@ -5,7 +5,8 @@ from .views import (
     file_download_view,
     share_file_view,
     revoke_access_view,
-    file_access_log_view
+    file_access_log_view,
+    file_delete_view
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('share/<int:pk>/', share_file_view, name='file-share'),
     path('revoke/<int:file_id>/<int:user_id>/', revoke_access_view, name='revoke-access'),
     path('access-log/<int:pk>/', file_access_log_view, name='file-access-log'),
+    path('delete/<int:pk>/', file_delete_view, name='file-delete'),
 ]
