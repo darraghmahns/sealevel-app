@@ -1,10 +1,9 @@
 from django.db import migrations
-from utils.solana import generate_solana_pubkey
 
 def populate_solana_account_pubkey(apps, schema_editor):
     File = apps.get_model('files', 'File')
     for file in File.objects.all():
-        file.solana_account_pubkey = generate_solana_pubkey()
+        file.solana_account_pubkey = "1234"
         file.save()
 
 class Migration(migrations.Migration):
