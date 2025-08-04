@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+
+# Django
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.sqlite3
+db.sqlite3
+
+# Environment
+.env
+*.env
+
+# Media
+/media/
+
+# Static files
+/staticfiles/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Solana
+test-ledger/
+
+service_keypair.json

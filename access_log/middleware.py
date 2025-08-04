@@ -1,5 +1,5 @@
 from django.utils.deprecation import MiddlewareMixin
-from .models import AccessLog, File
+from .models import File
 from solana_utils import log_access
 
 class AccessLogMiddleware(MiddlewareMixin):
@@ -9,9 +9,6 @@ class AccessLogMiddleware(MiddlewareMixin):
 			if file_id:
 				try:
 					file = File.objects.get(id=file_id)
-					# Log to the database
-					AccessLog.objects.create(user=request.user, file=file, action=request.path)
-
 					# Log to Solana
 					log_access(request.user.id, file_id, request.path)
 				except File.DoesNotExist:

@@ -1,3 +1,5 @@
+<!-- files/templates/base.html -->
+
 {% load static %}
 
 <!DOCTYPE html>
@@ -20,7 +22,9 @@
                     {% if user.is_authenticated %}
                         <li><a href="{% url 'landing' %}">Home</a></li>
                         <li><a href="{% url 'file-list' %}">My Files</a></li>
-                        <li><a href="{% url 'file-upload' %}">Upload File</a></li>
+                        {% if not user.is_provider %}
+                            <li><a href="{% url 'file-upload' %}">Upload File</a></li>
+                        {% endif %}
                         <li>
                             <form method="post" action="{% url 'logout' %}" class="logout-form">
                                 {% csrf_token %}
@@ -36,10 +40,20 @@
             </nav>
         </div>
     </header>
+    
     <main>
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="message {{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
         {% block content %}
         {% endblock %}
     </main>
+    
     <footer>
         <p>&copy; 2024 Sealevel Health</p>
     </footer>

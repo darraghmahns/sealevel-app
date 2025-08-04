@@ -33,10 +33,11 @@ SECRET_KEY = get_env_var('DJANGO_SECRET_KEY', required=True)
 DEBUG = get_env_var('DJANGO_DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = get_env_var('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,health.darraghmahns.com').split(',')
 
-# Solana Settings
+# Solana Settings (disabled for demo)
+SOLANA_ENABLED = get_env_var('SOLANA_ENABLED', 'False').lower() == 'true'
 SOLANA_RPC_ENDPOINT = get_env_var('SOLANA_RPC_ENDPOINT', 'https://api.devnet.solana.com')
-SOLANA_KEYPAIR = get_env_var('SOLANA_KEYPAIR', required=True)
-SOLANA_PROGRAM_ID = get_env_var('SOLANA_PROGRAM_ID', required=True)
+SOLANA_KEYPAIR = get_env_var('SOLANA_KEYPAIR', 'demo-keypair')
+SOLANA_PROGRAM_ID = get_env_var('SOLANA_PROGRAM_ID', 'demo-program-id')
 
 # Media files configuration
 MEDIA_URL = '/media/'
