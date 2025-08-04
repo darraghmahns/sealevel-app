@@ -23,5 +23,5 @@ services:
         value: health.darraghmahns.com
       - key: DJANGO_SECRET_KEY
         generateValue: true
-      - key: SOLANA_RPC_ENDPOINT
-        value: https://api.devnet.solana.com
+      - key: SOLANA_ENABLED
+        value: false
