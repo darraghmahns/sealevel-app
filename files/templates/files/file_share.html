@@ -1,45 +1,142 @@
-<!-- files/templates/files/file_share.html -->
-
 {% extends 'base.html' %}
 
-{% block title %}Share File: {{ file.uploaded_file.name }}{% endblock %}
+{% block title %}Share File - Sealevel Health{% endblock %}
 
 {% block content %}
-  <h2>Share File: {{ file.uploaded_file.name }}</h2>
-  
-  <form method="post">
-    {% csrf_token %}
-    <label for="email">Share with (Email):</label>
-    <input type="email" name="email" id="email" required>
-    <button type="submit">Share</button>
-  </form>
-  
-  <h3>Users with Access:</h3>
-  
-  {% if file.access_list.all %}
-    <table>
-      <thead>
-        <tr>
-          <th>User Email</th>
-          <th>Access Granted At</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for access in file.access_list.all %}
-          <tr>
-            <td>{{ access.user.email }}</td>
-            <td>{{ access.access_granted_at|date:"Y-m-d H:i:s" }}</td>
-            <td>
-              <a href="{% url 'revoke-access' file.id access.user.id %}">Revoke Access</a>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>No users have access to this file.</p>
-  {% endif %}
-  
-  <a href="{% url 'file-list' %}">Back to File List</a>
+<div class="container">
+    <!-- File Header -->
+    <div class="mb-2xl">
+        <a href="{% url 'file-list' %}" class="text-secondary text-sm">← Back to Files</a>
+        <h1 class="text-lg font-semibold mt-sm">Share Medical Document</h1>
+        <p class="text-secondary">Control who can access your health records</p>
+    </div>
+    
+    <!-- File Info Card -->
+    <div class="card mb-2xl">
+        <div class="card-body">
+            <div class="file-item">
+                <div class="file-icon">📄</div>
+                <div class="file-info">
+                    <h3 class="file-name">{{ file.uploaded_file.name|slice:"11:" }}</h3>
+                    <div class="file-meta">
+                        <p><strong>Owner:</strong> {{ file.owner.email }}</p>
+                        <p><strong>Uploaded:</strong> {{ file.uploaded_date|date:"M d, Y at H:i" }}</p>
+                        <p><strong>File Size:</strong> 
+                            {% if file_size %}
+                                {{ file_size|filesizeformat }}
+                            {% else %}
+                                Unknown
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Share with New User -->
+    <div class="card mb-2xl">
+        <div class="card-body">
+            <h2 class="font-semibold mb-lg">🤝 Share with Healthcare Provider or Patient</h2>
+            <p class="text-secondary mb-lg">Enter the email address of the person you want to share this file with. They will be able to view and download the document.</p>
+            
+            <form method="post" class="form-container">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" name="email" id="email" class="form-input" 
+                           placeholder="doctor@hospital.com" required 
+                           autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        🔗 Share File
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Current Access List -->
+    <div class="card">
+        <div class="card-body">
+            <h2 class="font-semibold mb-lg">👥 Current Access Permissions</h2>
+            
+            {% if file.access_list.all %}
+                <p class="text-secondary mb-lg">The following users currently have access to this file:</p>
+                
+                <div class="file-grid">
+                    {% for access in file.access_list.all %}
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-lg text-center" style="font-size: 2rem;">👤</div>
+                                <h3 class="font-semibold text-center mb-sm">{{ access.user.email }}</h3>
+                                <div class="text-center text-sm text-secondary mb-lg">
+                                    <p><strong>Access granted:</strong><br>{{ access.access_granted_at|date:"M d, Y at H:i" }}</p>
+                                    {% if access.user.is_provider %}
+                                        <span class="text-primary-600">🏥 Healthcare Provider</span>
+                                    {% else %}
+                                        <span class="text-primary-600">👤 Patient</span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-center">
+                                    <a href="{% url 'revoke-access' file.id access.user.id %}" 
+                                       class="btn btn-sm btn-secondary"
+                                       onclick="return confirm('Are you sure you want to revoke access for {{ access.user.email }}?')">
+                                        🚫 Revoke Access
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <div class="mb-lg" style="font-size: 3rem; opacity: 0.3;">🔒</div>
+                    <h3 class="font-semibold mb-sm">Private File</h3>
+                    <p class="text-secondary">This file is currently private. Only you can access it. Use the form above to share it with healthcare providers or other patients.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Security Notice -->
+    <div class="card mt-2xl" style="background: rgba(255, 179, 71, 0.1); border-color: var(--sunset-peach);">
+        <div class="card-body text-center">
+            <div class="mb-lg" style="font-size: 2rem;">🛡️</div>
+            <h3 class="font-semibold mb-sm">Your Data is Protected</h3>
+            <p class="text-secondary">All file sharing activities are logged on the Solana blockchain for complete transparency. You can view the full access history in the file's access log.</p>
+            <div class="mt-lg">
+                <a href="{% url 'file-access-log' file.id %}" class="btn btn-secondary">
+                    📊 View Access Log
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-group input {
+    width: 100%;
+    padding: var(--space-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    color: var(--text-primary);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+}
+
+.form-group input::placeholder {
+    color: var(--text-muted);
+}
+</style>
 {% endblock %}

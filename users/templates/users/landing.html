@@ -1,31 +1,166 @@
 
 {% extends 'base.html' %}
-{% block title %}Welcome to Sealevel{% endblock %}
+{% block title %}Welcome to Sealevel Health{% endblock %}
+
 {% block content %}
-<div class="landing-page">
-    <section class="hero">
-        <h2>Welcome to Sealevel</h2>
-        <p>Your health data, managed securely.</p>
+{% if user.is_authenticated %}
+    <!-- Logged In User - Welcome Back Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="hero-title">Welcome Back, {{ user.first_name|default:user.email|truncatechars:15 }}!</h1>
+            <p class="hero-subtitle">
+                Your secure health data management platform is ready. 
+                {% if user.is_provider %}
+                    Manage patient records and provide the best care possible.
+                {% else %}
+                    Upload, share, and track your medical records with confidence.
+                {% endif %}
+            </p>
+            <div class="mt-lg">
+                <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+                {% if not user.is_provider %}
+                    <a href="{% url 'file-upload' %}" class="btn btn-secondary btn-lg">Upload File</a>
+                {% else %}
+                    <a href="{% url 'file-list' %}" class="btn btn-secondary btn-lg">View Files</a>
+                {% endif %}
+            </div>
+        </div>
     </section>
-    <section class="features">
-        <h3>Why Choose Sealevel?</h3>
-        <ul>
-            <li>Secure and private health data management</li>
-            <li>Easy access to your health records</li>
-            <li>Track your health progress over time</li>
-            <li>Connect with healthcare providers</li>
-        </ul>
+
+    <!-- Quick Stats for Logged In Users -->
+    <section class="container" style="padding: var(--space-3xl) 0;">
+        <div class="text-center mb-2xl">
+            <h2 class="text-lg font-semibold">Your Sealevel Health Overview</h2>
+            <p class="text-secondary">Quick access to your most important features</p>
+        </div>
+        
+        <div class="file-grid">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">📁</div>
+                    <h3 class="font-semibold mb-sm">My Files</h3>
+                    <p class="text-secondary">View and manage all your medical documents in one secure location.</p>
+                    <div class="mt-lg">
+                        <a href="{% url 'file-list' %}" class="btn btn-primary">View Files</a>
+                    </div>
+                </div>
+            </div>
+            
+            {% if not user.is_provider %}
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="mb-lg" style="font-size: 2rem;">📤</div>
+                        <h3 class="font-semibold mb-sm">Upload Documents</h3>
+                        <p class="text-secondary">Securely store your medical records, test results, and health documents.</p>
+                        <div class="mt-lg">
+                            <a href="{% url 'file-upload' %}" class="btn btn-primary">Upload File</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="mb-lg" style="font-size: 2rem;">👥</div>
+                        <h3 class="font-semibold mb-sm">Patient Records</h3>
+                        <p class="text-secondary">Upload and manage medical records for your patients securely.</p>
+                        <div class="mt-lg">
+                            <a href="{% url 'file-upload' %}" class="btn btn-primary">Upload for Patient</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">📊</div>
+                    <h3 class="font-semibold mb-sm">Analytics</h3>
+                    <p class="text-secondary">View your usage statistics and access logs for complete transparency.</p>
+                    <div class="mt-lg">
+                        <a href="{% url 'home' %}" class="btn btn-primary">View Dashboard</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">🔒</div>
+                    <h3 class="font-semibold mb-sm">Blockchain Security</h3>
+                    <p class="text-secondary">All your file activities are logged on Solana for complete audit trails.</p>
+                    <div class="mt-lg">
+                        <a href="{% url 'file-list' %}" class="btn btn-secondary">View Access Logs</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
-    <section class="testimonials">
-        <h3>What Our Users Say</h3>
-        <blockquote>
-            <p>"Sealevel has transformed how I manage my health data. It's secure and easy to use!"</p>
-            <footer>- Jane Doe</footer>
-        </blockquote>
-        <blockquote>
-            <p>"I love being able to track my health progress and share it with my doctor."</p>
-            <footer>- John Smith</footer>
-        </blockquote>
+
+{% else %}
+    <!-- Not Logged In - Marketing Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="hero-title">Sealevel Health</h1>
+            <p class="hero-subtitle">
+                Your health data, managed securely on the blockchain. 
+                Store, share, and control your medical records with confidence.
+            </p>
+            <div class="mt-lg">
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">Get Started Today</a>
+                <a href="{% url 'login' %}" class="btn btn-secondary btn-lg">Sign In</a>
+            </div>
+        </div>
     </section>
-</div>
+
+    <!-- Features Section for Non-Authenticated Users -->
+    <section class="container" style="padding: var(--space-3xl) 0;">
+        <div class="text-center mb-2xl">
+            <h2 class="text-lg font-semibold">Why Choose Sealevel Health?</h2>
+            <p class="text-secondary">Modern healthcare data management built for privacy and security</p>
+        </div>
+        
+        <div class="file-grid">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">🔒</div>
+                    <h3 class="font-semibold mb-sm">Secure & Private</h3>
+                    <p class="text-secondary">Your health data is encrypted and stored securely, with blockchain-powered access logging for complete transparency.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">📱</div>
+                    <h3 class="font-semibold mb-sm">Easy Access</h3>
+                    <p class="text-secondary">Access your health records anytime, anywhere. Share with healthcare providers instantly when you need care.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">📊</div>
+                    <h3 class="font-semibold mb-sm">Track Progress</h3>
+                    <p class="text-secondary">Monitor your health journey over time with comprehensive record keeping and easy-to-understand insights.</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">🏥</div>
+                    <h3 class="font-semibold mb-sm">Provider Network</h3>
+                    <p class="text-secondary">Connect with trusted healthcare providers who can securely access and contribute to your health records.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section for Non-Authenticated Users -->
+    <section class="container text-center" style="padding: var(--space-3xl) 0;">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="font-semibold mb-lg">Ready to Take Control of Your Health Data?</h2>
+                <p class="text-secondary mb-lg">Join thousands of users who trust Sealevel Health with their most important medical information.</p>
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">Create Your Account</a>
+            </div>
+        </div>
+    </section>
+{% endif %}
 {% endblock %}

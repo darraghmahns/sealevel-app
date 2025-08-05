@@ -2,51 +2,271 @@
 
 {% load tz %}
 
-{% block title %}Access Log for {{ file.uploaded_file.name }}{% endblock %}
+{% block title %}Access Log - Sealevel Health{% endblock %}
 
 {% block content %}
-  <h2>Access Log for {{ file.uploaded_file.name }}</h2>
-  
-  <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    tr:hover {
-      background-color: #f5f5f5;
-    }
-  </style>
+<div class="container">
+    <!-- Header -->
+    <div class="mb-2xl">
+        <a href="{% url 'file-list' %}" class="text-secondary text-sm">← Back to Files</a>
+        <h1 class="text-lg font-semibold mt-sm">Blockchain Access Log</h1>
+        <p class="text-secondary">Complete audit trail for your medical document</p>
+    </div>
+    
+    <!-- File Info Card -->
+    <div class="card mb-2xl">
+        <div class="card-body">
+            <div class="file-item">
+                <div class="file-icon">📄</div>
+                <div class="file-info">
+                    <h3 class="file-name">{{ file.uploaded_file.name|slice:"11:" }}</h3>
+                    <div class="file-meta">
+                        <p><strong>Owner:</strong> {{ file.owner.email }}</p>
+                        <p><strong>Uploaded:</strong> {{ file.uploaded_date|date:"M d, Y at H:i" }}</p>
+                        <p><strong>File Size:</strong> 
+                            {% if file_size %}
+                                {{ file_size|filesizeformat }}
+                            {% else %}
+                                Unknown
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="mt-lg">
+                        <a href="{% url 'file-download' file.id %}" class="btn btn-sm btn-primary">Download</a>
+                        {% if file.owner == user and not user.is_provider %}
+                            <a href="{% url 'file-share' file.id %}" class="btn btn-sm btn-secondary">Share</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Blockchain Security Notice -->
+    <div class="card mb-2xl" style="background: rgba(255, 179, 71, 0.1); border-color: var(--sunset-peach);">
+        <div class="card-body text-center">
+            <div class="mb-lg" style="font-size: 2rem;">⛓️</div>
+            <h2 class="font-semibold mb-sm">Solana Blockchain Audit Trail</h2>
+            <p class="text-secondary">Every access to this file is permanently recorded on the Solana blockchain, creating an immutable and transparent audit trail. This ensures complete accountability and security for your medical data.</p>
+        </div>
+    </div>
+    
+    <!-- Access Logs -->
+    <div class="card">
+        <div class="card-body">
+            <h2 class="font-semibold mb-lg">📊 Access History</h2>
+            
+            {% if access_logs %}
+                <p class="text-secondary mb-lg">{{ access_logs|length }} access event{{ access_logs|length|pluralize }} recorded on the blockchain:</p>
+                
+                <div class="access-log-timeline">
+                    {% for log in access_logs %}
+                        <div class="access-log-entry">
+                            <div class="access-log-icon">
+                                {% if "downloaded" in log.action %}
+                                    📥
+                                {% elif "uploaded" in log.action %}
+                                    📤
+                                {% elif "shared" in log.action %}
+                                    🤝
+                                {% elif "revoked" in log.action %}
+                                    🚫
+                                {% else %}
+                                    📋
+                                {% endif %}
+                            </div>
+                            <div class="access-log-content">
+                                <div class="access-log-header">
+                                    <h3 class="access-log-action">{{ log.action|title }}</h3>
+                                    <span class="access-log-time">{{ log.timestamp|date:"M d, Y • g:i A" }}</span>
+                                </div>
+                                <p class="access-log-user">
+                                    <strong>User:</strong> {{ log.user }}
+                                    {% if log.user.is_provider %}
+                                        <span class="user-badge provider">🏥 Provider</span>
+                                    {% else %}
+                                        <span class="user-badge patient">👤 Patient</span>
+                                    {% endif %}
+                                </p>
+                                <div class="access-log-blockchain">
+                                    <span class="blockchain-badge">⛓️ Verified on Solana</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <div class="mb-lg" style="font-size: 3rem; opacity: 0.3;">📊</div>
+                    <h3 class="font-semibold mb-sm">No Access Logs Yet</h3>
+                    <p class="text-secondary">
+                        {% if not settings.SOLANA_ENABLED %}
+                            Blockchain logging is currently disabled for this demo. In production, all file access would be automatically recorded on the Solana blockchain.
+                        {% else %}
+                            This file hasn't been accessed yet. All future access will be automatically logged on the Solana blockchain.
+                        {% endif %}
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Info Cards -->
+    <div class="file-grid mt-2xl">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-lg" style="font-size: 2rem;">🔐</div>
+                <h3 class="font-semibold mb-sm">Immutable Records</h3>
+                <p class="text-secondary">Once recorded on the blockchain, access logs cannot be altered or deleted, ensuring complete integrity.</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-lg" style="font-size: 2rem;">🌍</div>
+                <h3 class="font-semibold mb-sm">Global Verification</h3>
+                <p class="text-secondary">Access logs are verified by the Solana network, providing cryptographic proof of all activities.</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-lg" style="font-size: 2rem;">⚡</div>
+                <h3 class="font-semibold mb-sm">Real-time Logging</h3>
+                <p class="text-secondary">Every file access is immediately recorded, providing instant visibility into data usage.</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-lg" style="font-size: 2rem;">📈</div>
+                <h3 class="font-semibold mb-sm">Complete Transparency</h3>
+                <p class="text-secondary">You have full visibility into who accessed your data, when, and what actions they performed.</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-  {% if access_logs %}
-    <table>
-      <thead>
-        <tr>
-          <th>Timestamp</th>
-          <th>Action</th>
-          <th>User</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for log in access_logs %}
-          <tr>
-            <td>{{ log.timestamp|date:"F j, Y, g:i a" }}</td>
-            <td>{{ log.action }}</td>
-            <td>{{ log.user }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>No access logs available.</p>
-  {% endif %}
-  
-  <a href="{% url 'file-list' %}">Back to File List</a>
+<style>
+.access-log-timeline {
+    border-left: 2px solid var(--border-color);
+    margin-left: 1rem;
+    padding-left: 0;
+}
+
+.access-log-entry {
+    display: flex;
+    margin-bottom: var(--space-xl);
+    position: relative;
+}
+
+.access-log-entry:last-child {
+    margin-bottom: 0;
+}
+
+.access-log-icon {
+    width: 3rem;
+    height: 3rem;
+    background: var(--bg-glass);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-left: -2rem;
+    margin-right: var(--space-lg);
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+}
+
+.access-log-content {
+    flex: 1;
+    background: var(--bg-glass);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    backdrop-filter: blur(16px);
+}
+
+.access-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-sm);
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.access-log-action {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.access-log-time {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.access-log-user {
+    margin: var(--space-sm) 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.user-badge {
+    display: inline-block;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-left: var(--space-sm);
+}
+
+.user-badge.provider {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.user-badge.patient {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.access-log-blockchain {
+    margin-top: var(--space-sm);
+}
+
+.blockchain-badge {
+    display: inline-block;
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--primary-100);
+    color: var(--primary-600);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .access-log-timeline {
+        margin-left: 0.5rem;
+    }
+    
+    .access-log-icon {
+        margin-left: -1.5rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1rem;
+    }
+    
+    .access-log-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
 {% endblock %}

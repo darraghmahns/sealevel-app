@@ -1,7 +1,176 @@
 {% extends 'base.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Dashboard - Sealevel Health{% endblock %}
 
 {% block content %}
-<h2>Welcome, {{ name }}</h2>
+<div class="container">
+    <!-- Welcome Header -->
+    <div class="mb-2xl">
+        <h1 class="text-lg font-semibold">Welcome back, {{ name }}! 👋</h1>
+        <p class="text-secondary">{{ role }} Dashboard - Your secure health data management center</p>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="file-grid mb-2xl">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-lg" style="font-size: 2rem;">📁</div>
+                <h3 class="font-semibold text-primary-600">{{ total_files }}</h3>
+                <p class="text-secondary">Total Files</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-lg" style="font-size: 2rem;">📈</div>
+                <h3 class="font-semibold text-primary-600">{{ files_this_month }}</h3>
+                <p class="text-secondary">Files This Month</p>
+            </div>
+        </div>
+        
+        {% if user.is_provider %}
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">👥</div>
+                    <h3 class="font-semibold text-primary-600">{{ patients_served }}</h3>
+                    <p class="text-secondary">Patients Served</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">🤝</div>
+                    <h3 class="font-semibold text-primary-600">{{ shared_files }}</h3>
+                    <p class="text-secondary">Shared With Me</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">📤</div>
+                    <h3 class="font-semibold text-primary-600">{{ files_shared_by_me }}</h3>
+                    <p class="text-secondary">Shared by Me</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- How Sealevel Works -->
+    <div class="card mb-2xl">
+        <div class="card-body">
+            <h2 class="font-semibold mb-lg">🔒 How Sealevel Health Works</h2>
+            <div class="file-grid">
+                <div>
+                    <h3 class="font-semibold mb-sm text-primary-600">1. Secure Storage</h3>
+                    <p class="text-secondary mb-lg">Your health documents are encrypted and stored securely in our cloud infrastructure. Each file is protected with enterprise-grade security measures.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-sm text-primary-600">2. Blockchain Logging</h3>
+                    <p class="text-secondary mb-lg">Every access to your files is logged on the Solana blockchain, creating an immutable audit trail. You always know who accessed what and when.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-sm text-primary-600">3. Controlled Sharing</h3>
+                    <p class="text-secondary mb-lg">Share your medical records with healthcare providers instantly. You control who has access and can revoke permissions at any time.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-sm text-primary-600">4. Complete Transparency</h3>
+                    <p class="text-secondary mb-lg">View detailed access logs for each file. See exactly when your data was accessed, downloaded, or shared - all verified on the blockchain.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    {% if recent_files %}
+    <div class="card mb-2xl">
+        <div class="card-body">
+            <h2 class="font-semibold mb-lg">📋 Recent Files</h2>
+            <div class="file-grid">
+                {% for file in recent_files %}
+                    <div class="file-item">
+                        <div class="file-icon">📄</div>
+                        <div class="file-info">
+                            <h3 class="file-name">{{ file.uploaded_file.name|slice:"11:" }}</h3>
+                            <div class="file-meta">
+                                <p><strong>Uploaded:</strong> {{ file.uploaded_date|date:"M d, Y" }}</p>
+                                {% if user.is_provider %}
+                                    <p><strong>Patient:</strong> {{ file.owner.email }}</p>
+                                {% endif %}
+                                <div class="mt-lg">
+                                    <a href="{% url 'file-download' file.id %}" class="btn btn-sm btn-primary">Download</a>
+                                    <a href="{% url 'file-access-log' file.id %}" class="btn btn-sm btn-secondary">View Log</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-lg">
+                <a href="{% url 'file-list' %}" class="btn btn-secondary">View All Files</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Security Features -->
+    <div class="card mb-2xl">
+        <div class="card-body">
+            <h2 class="font-semibold mb-lg">🛡️ Your Data Security</h2>
+            <div class="file-grid">
+                <div class="text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">🔐</div>
+                    <h3 class="font-semibold mb-sm">End-to-End Encryption</h3>
+                    <p class="text-secondary">All your health data is encrypted using AES-256 encryption before storage.</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">⛓️</div>
+                    <h3 class="font-semibold mb-sm">Blockchain Audit Trail</h3>
+                    <p class="text-secondary">Every file access is recorded on Solana blockchain for complete transparency.</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">🎯</div>
+                    <h3 class="font-semibold mb-sm">Access Control</h3>
+                    <p class="text-secondary">You decide who can view your files and can revoke access instantly.</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="mb-lg" style="font-size: 2rem;">📊</div>
+                    <h3 class="font-semibold mb-sm">Activity Monitoring</h3>
+                    <p class="text-secondary">Real-time notifications and detailed logs of all file activities.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="card">
+        <div class="card-body text-center">
+            <h2 class="font-semibold mb-lg">🚀 Quick Actions</h2>
+            <div class="file-grid">
+                {% if not user.is_provider %}
+                    <a href="{% url 'file-upload' %}" class="btn btn-primary btn-lg">
+                        📤 Upload New File
+                    </a>
+                {% endif %}
+                <a href="{% url 'file-list' %}" class="btn btn-secondary btn-lg">
+                    📋 View All Files
+                </a>
+                {% if user.is_provider %}
+                    <a href="{% url 'file-upload' %}" class="btn btn-primary btn-lg">
+                        👥 Upload for Patient
+                    </a>
+                {% endif %}
+            </div>
+            
+            <div class="mt-lg">
+                <p class="text-secondary">{{ recent_activity }}</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -9,7 +9,16 @@ from django.core.files.storage import FileSystemStorage
 from asgiref.sync import async_to_sync
 from .models import File, FileAccess
 from .forms import FileUploadForm
-from access_log.solana_utils import log_access, retrieve_access_logs  # Adjust the import path as needed
+# Conditional Solana imports
+try:
+    from access_log.solana_utils import log_access, retrieve_access_logs
+    SOLANA_AVAILABLE = True
+except ImportError:
+    SOLANA_AVAILABLE = False
+    def log_access(*args, **kwargs):
+        pass  # No-op when Solana is disabled
+    def retrieve_access_logs(*args, **kwargs):
+        return []
 from users.models import User
 
 
@@ -37,8 +46,10 @@ def file_upload_view(request):
             # Save the file instance to get the ID
             file_instance.save()
 
-            # Log the upload action asynchronously
-            async_to_sync(log_access)(request.user, 'uploaded', file_instance)
+            # Log the upload action asynchronously (if Solana is enabled)
+            from django.conf import settings
+            if getattr(settings, 'SOLANA_ENABLED', False) and SOLANA_AVAILABLE:
+                async_to_sync(log_access)(request.user, 'uploaded', file_instance)
 
             return redirect('file-list')
     else:
@@ -69,8 +80,10 @@ def file_download_view(request, pk):
         FileAccess.objects.filter(file=file, user=request.user).exists()):
 
         action = "downloaded"
-        # Log to Solana asynchronously
-        async_to_sync(log_access)(request.user, action, file)
+        # Log to Solana asynchronously (if Solana is enabled)
+        from django.conf import settings
+        if getattr(settings, 'SOLANA_ENABLED', False) and SOLANA_AVAILABLE:
+            async_to_sync(log_access)(request.user, action, file)
 
         # Serve the file
         file_path = file.uploaded_file.path
@@ -94,15 +107,43 @@ def file_access_log_view(request, pk):
             FileAccess.objects.filter(file=file, user=request.user).exists()):
         return HttpResponseForbidden("You do not have permission to view access logs for this file.")
 
-    # Retrieve access logs asynchronously
-    access_logs = async_to_sync(retrieve_access_logs)(file)
+    # Add file size info safely
+    file_size = None
+    try:
+        if file.uploaded_file and hasattr(file.uploaded_file, 'size'):
+            file_size = file.uploaded_file.size
+    except (OSError, FileNotFoundError):
+        # File doesn't exist on disk
+        file_size = None
 
-    return render(request, 'files/file_access_log.html', {'file': file, 'access_logs': access_logs})
+    # Retrieve access logs asynchronously (if Solana is enabled)
+    from django.conf import settings
+    if getattr(settings, 'SOLANA_ENABLED', False) and SOLANA_AVAILABLE:
+        access_logs = async_to_sync(retrieve_access_logs)(file)
+    else:
+        access_logs = []
+
+    context = {
+        'file': file,
+        'file_size': file_size,
+        'access_logs': access_logs
+    }
+    return render(request, 'files/file_access_log.html', context)
 
 
 @login_required
 def share_file_view(request, pk):
     file = get_object_or_404(File, pk=pk, owner=request.user)
+    
+    # Add file size info safely
+    file_size = None
+    try:
+        if file.uploaded_file and hasattr(file.uploaded_file, 'size'):
+            file_size = file.uploaded_file.size
+    except (OSError, FileNotFoundError):
+        # File doesn't exist on disk
+        file_size = None
+    
     if request.method == 'POST':
         email = request.POST.get('email')
         try:
@@ -114,15 +155,21 @@ def share_file_view(request, pk):
                 if created:
                     messages.success(request, f"File shared with {user_to_share.email}.")
                     action = "shared with " + user_to_share.email
-                    # Log to Solana asynchronously
-                    async_to_sync(log_access)(request.user, action, file)
+                    # Log to Solana asynchronously (if Solana is enabled)
+                    from django.conf import settings
+                    if getattr(settings, 'SOLANA_ENABLED', False) and SOLANA_AVAILABLE:
+                        async_to_sync(log_access)(request.user, action, file)
                 else:
                     messages.info(request, f"File is already shared with {user_to_share.email}.")
         except User.DoesNotExist:
             messages.error(request, "User with this email does not exist.")
         return redirect('file-share', pk=file.id)
     else:
-        return render(request, 'files/file_share.html', {'file': file})
+        context = {
+            'file': file,
+            'file_size': file_size
+        }
+        return render(request, 'files/file_share.html', context)
 
 
 @login_required
@@ -133,8 +180,10 @@ def revoke_access_view(request, file_id, user_id):
         access_entry.delete()
         messages.success(request, "Access revoked.")
         action = "revoked access for " + access_entry.user.email
-        # Log to Solana asynchronously
-        async_to_sync(log_access)(request.user, action, file)
+        # Log to Solana asynchronously (if Solana is enabled)
+        from django.conf import settings
+        if getattr(settings, 'SOLANA_ENABLED', False) and SOLANA_AVAILABLE:
+            async_to_sync(log_access)(request.user, action, file)
     except FileAccess.DoesNotExist:
         messages.error(request, "Access entry does not exist.")
     return redirect('file-share', pk=file.id)

@@ -1,16 +1,93 @@
 {% extends 'base.html' %}
 
-{% load static %}
-
-{% block title %}Login{% endblock %}
+{% block title %}Login - Sealevel Health{% endblock %}
 
 {% block content %}
-<h2>Login</h2>
-<form class="login" method="post">
-    <div>
-      {% csrf_token %}
-      {{ form.as_p }}
-      <input type="submit" value="Login"/>
+<div class="container-sm">
+    <div class="form-container">
+        <div class="form-card">
+            <h2>Welcome Back</h2>
+            <p class="text-secondary text-center mb-lg">Sign in to access your health records</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div class="form-group">
+                        {% if field.label %}
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {% endif %}
+                        
+                        {{ field }}
+                        
+                        {% if field.errors %}
+                            <div class="text-error text-sm mt-sm">
+                                {% for error in field.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if field.help_text %}
+                            <div class="text-muted text-sm mt-sm">
+                                {{ field.help_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-error">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-full btn-lg">
+                        🔐 Sign In
+                    </button>
+                </div>
+            </form>
+            
+            <div class="text-center mt-lg">
+                <p class="text-secondary">Don't have an account? <a href="{% url 'signup' %}" class="text-primary-600">Sign up here</a></p>
+            </div>
+        </div>
     </div>
-</form>
+</div>
+
+<style>
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: var(--space-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    color: var(--text-primary);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.text-error {
+    color: var(--error-600);
+}
+</style>
 {% endblock %}

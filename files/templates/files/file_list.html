@@ -1,71 +1,60 @@
-<!-- files/templates/files/file_list.html -->
-
 {% extends 'base.html' %}
 
-{% block title %}Your Files{% endblock %}
+{% block title %}Your Files - Sealevel Health{% endblock %}
 
 {% block content %}
-  <h2>Your Files</h2>
+<div class="container">
+    <div class="mb-lg">
+        <h1 class="text-lg font-semibold">Your Files</h1>
+        <p class="text-secondary">Manage your health documents securely</p>
+    </div>
 
-  <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    tr:hover {
-      background-color: #f5f5f5;
-    }
-  </style>
-  
-  {% if files %}
-    <table>
-      <thead>
-        <tr>
-          <th>File Name</th>
-          <th>Owner</th>
-          <th>Uploaded By</th>
-          <th>Uploaded On</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for file in files %}
-          <tr>
-            <td>{{ file.uploaded_file.name|slice:"11:" }}</td>
-            <td>{{ file.owner.email }}</td>
-            <td>
-              {% if file.uploaded_by %}
-                {{ file.uploaded_by.email }}
-              {% else %}
-                Unknown
-              {% endif %}
-            </td>
-            <td>{{ file.uploaded_date|date:"Y-m-d H:i:s" }}</td>
-            <td>
-              <a href="{% url 'file-download' file.id %}">Download</a>
-              {% if file.owner == user and not user.is_provider %}
-                | <a href="{% url 'file-share' file.id %}">Share</a>
-              {% endif %}
-              | <a href="{% url 'file-access-log' file.id %}">Access Log</a>
-              | <a href="{% url 'file-delete' file.id %}">Delete</a>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>No files to display.</p>
-  {% endif %}
-  
-  {% if not user.is_provider %}
-    <a href="{% url 'file-upload' %}">Upload New File</a>
-  {% endif %}
+    {% if not user.is_provider %}
+        <div class="mb-lg">
+            <a href="{% url 'file-upload' %}" class="btn btn-primary">
+                📁 Upload New File
+            </a>
+        </div>
+    {% endif %}
+
+    {% if files %}
+        <div class="file-grid">
+            {% for file in files %}
+                <div class="file-item">
+                    <div class="file-icon">
+                        📄
+                    </div>
+                    <div class="file-info">
+                        <h3 class="file-name">{{ file.uploaded_file.name|slice:"11:" }}</h3>
+                        <div class="file-meta">
+                            <p><strong>Owner:</strong> {{ file.owner.email }}</p>
+                            {% if file.uploaded_by %}
+                                <p><strong>Uploaded by:</strong> {{ file.uploaded_by.email }}</p>
+                            {% endif %}
+                            <p><strong>Date:</strong> {{ file.uploaded_date|date:"M d, Y" }}</p>
+                            <div class="mt-lg">
+                                <a href="{% url 'file-download' file.id %}" class="btn btn-sm btn-primary">Download</a>
+                                {% if file.owner == user and not user.is_provider %}
+                                    <a href="{% url 'file-share' file.id %}" class="btn btn-sm btn-secondary">Share</a>
+                                {% endif %}
+                                <a href="{% url 'file-access-log' file.id %}" class="btn btn-sm btn-secondary">Access Log</a>
+                                <a href="{% url 'file-delete' file.id %}" class="btn btn-sm btn-secondary">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>No Files Yet</h3>
+                <p class="text-secondary">You haven't uploaded any files yet.</p>
+                {% if not user.is_provider %}
+                    <a href="{% url 'file-upload' %}" class="btn btn-primary">Upload Your First File</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

@@ -1,5 +1,3 @@
-<!-- files/templates/base.html -->
-
 {% load static %}
 
 <!DOCTYPE html>
@@ -8,8 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sealevel Health{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=4">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
@@ -20,7 +20,7 @@
             <nav>
                 <ul>
                     {% if user.is_authenticated %}
-                        <li><a href="{% url 'landing' %}">Home</a></li>
+                        <li><a href="{% url 'home' %}">Dashboard</a></li>
                         <li><a href="{% url 'file-list' %}">My Files</a></li>
                         {% if not user.is_provider %}
                             <li><a href="{% url 'file-upload' %}">Upload File</a></li>
@@ -43,11 +43,11 @@
     
     <main>
         {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li class="message {{ message.tags }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
         {% endif %}
         
         {% block content %}
@@ -55,7 +55,7 @@
     </main>
     
     <footer>
-        <p>&copy; 2024 Sealevel Health</p>
+        <p>&copy; 2024 Sealevel Health - Secure Health Data Management</p>
     </footer>
 </body>
 </html>
