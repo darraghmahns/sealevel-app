@@ -4,17 +4,23 @@ import json
 import os
 import pytz
 from django.utils import timezone
-from solana.transaction import Transaction
-from solders.instruction import Instruction
-from solders.pubkey import Pubkey
-from solders.keypair import Keypair
-from solders.signature import Signature
-from solana.rpc.async_api import AsyncClient
-from solana.rpc.commitment import Confirmed
 import asyncio
 from asgiref.sync import sync_to_async
 from files.models import File
 from users.models import User
+
+# Conditional Solana imports
+try:
+    from solana.transaction import Transaction
+    from solders.instruction import Instruction
+    from solders.pubkey import Pubkey
+    from solders.keypair import Keypair
+    from solders.signature import Signature
+    from solana.rpc.async_api import AsyncClient
+    from solana.rpc.commitment import Confirmed
+    SOLANA_AVAILABLE = True
+except ImportError:
+    SOLANA_AVAILABLE = False
 
 #Initialize Solana client
 MEMO_PROGRAM_ID = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
@@ -22,6 +28,10 @@ SOLANA_RPC_URL = "https://api.devnet.solana.com"
 
 
 async def log_access(user: User, action: str, file: File):
+    if not SOLANA_AVAILABLE:
+        print(f"Solana not available - would log: {user.email} {action} {file.uploaded_file}")
+        return
+    
     # Servers solana keypair
     service_keypair = load_service_keypair()
 
@@ -56,6 +66,10 @@ async def log_access(user: User, action: str, file: File):
 import json
 
 async def retrieve_access_logs(file):
+    if not SOLANA_AVAILABLE:
+        print(f"Solana not available - would retrieve logs for: {file.uploaded_file}")
+        return []
+    
     pacific_tz = pytz.timezone('America/Los_Angeles')
     access_logs = []
     async with AsyncClient(SOLANA_RPC_URL) as client:
@@ -108,6 +122,9 @@ def load_service_keypair():
     Loads the service's Solana keypair from the SERVICE_KEYPAIR environment variable.
     The keypair is a list of 64 integers.
     """
+    if not SOLANA_AVAILABLE:
+        raise ValueError("Solana packages not available")
+        
     keypair_json = os.environ.get("SERVICE_KEYPAIR")
     if not keypair_json:
         raise ValueError("SERVICE_KEYPAIR environment variable not set.")
