@@ -54,9 +54,18 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "files",
-    "access_log",
-    "solana",
 ]
+
+# Conditionally add Solana-related apps only when enabled
+if SOLANA_ENABLED:
+    try:
+        import solana  # Test if solana package is available
+        INSTALLED_APPS.extend([
+            "access_log",
+            # "solana",  # Only add if this app actually exists
+        ])
+    except ImportError:
+        pass  # Solana packages not available, skip solana apps
 
 AUTH_USER_MODEL = 'users.User'
 
